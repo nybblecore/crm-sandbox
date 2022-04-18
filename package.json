@@ -2,9 +2,9 @@
   "name": "crm-sandbox",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://localhost:3012/",
+  "proxy": "http://localhost:6001/",
   "engines": {
-    "node": "16.x"
+    "node": "14.x"
   },
   "scripts": {
     "start-api": "nodemon server/start.js --watch ./server --watch ./swishqube-core/cms --watch ./swishqube-core/server",
@@ -16,20 +16,6 @@
     "build:dev": "node scripts/build.js && node scripts/build-web.js",
     "build:analyze": "export BUILD_ANALYZE=true && node scripts/build.js",
     "sync:ios:splash": "node scripts/build-ios.js  --env=production --mode=update-splash",
-    "build:app:ios": "node scripts/build.js --cordova && node scripts/build-ios.js  --env=production && cd cordova && cordova build ios",
-    "build:app:android": "node scripts/build.js --cordova && node scripts/build-android.js  --env=production && cd cordova && cordova build android",
-    "build:app:android:release": "node scripts/build.js --cordova && node scripts/build-android.js  --env=production && cd cordova && cordova build android --release --buildConfig=/Users/navkumar24/Documents/Personal/gitlab/finance-app/cordova/res/android/build.json",
-    "build:app:ios:local": "node scripts/build.js --cordova && node scripts/build-ios.js --env=ipaddress && cd cordova && cordova build ios && cordova run ios",
-    "build:app:android:local": "node scripts/build.js --cordova && node scripts/build-android.js --env=ipaddress && cd cordova && cordova build android && cordova run android",
-    "build:app:ios:run": "npm run build:app:ios && cd cordova && cordova run ios",
-    "build:app:android:run": "npm run build:app:android && cd cordova && cordova run android",
-    "db:create": "node scripts/db/run.js  --cmd=create",
-    "db:migrate": "node scripts/db/run.js  --cmd=migrate",
-    "db:check": "node scripts/db/run.js  --cmd=check",
-    "db:clean": "node scripts/db/run.js  --cmd=clean",
-    "db:setup": "node scripts/db/run.js  --cmd=setup",
-    "db:sync": "node scripts/db/run.js  --cmd=sync",
-    "start-email": "http-server --port=9001 ./server/lib/email/",
     "test": "node scripts/test.js --no-watch",
     "test:coverage": "node scripts/test.js --no-watch --coverage",
     "test:watch": "node scripts/test.js",
