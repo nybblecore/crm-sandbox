@@ -2,7 +2,28 @@
   "name": "crm-sandbox",
   "version": "1.0.0",
   "private": true,
-  "proxy": "http://localhost:6001/",
+  "proxy": {
+    "/api": {
+      "changeOrigin": true,
+      "cookieDomainRewrite": "localhost",
+      "target": "http://localhost:6001"
+    },
+    "/client": {
+      "changeOrigin": true,
+      "cookieDomainRewrite": "localhost",
+      "target": "http://localhost:6001"
+    },
+    "/content": {
+      "changeOrigin": true,
+      "cookieDomainRewrite": "localhost",
+      "target": "http://localhost:6001"
+    },
+    "/dam": {
+      "changeOrigin": true,
+      "cookieDomainRewrite": "localhost",
+      "target": "http://localhost:6001"
+    }
+  },
   "engines": {
     "node": "14.x"
   },
