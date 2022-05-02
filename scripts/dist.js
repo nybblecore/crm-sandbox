@@ -23,6 +23,9 @@ function copyFolderRecursiveSync(
   target,
   ignore = ['node_modules', 'coverage', '.storybook', '.nyc_output', 'package-lock.json']
 ) {
+  if (!fs.existsSync(source)) {
+    return;
+  }
   var files = [];
   if (ignore.indexOf(path.basename(source)) > -1) {
     return;
@@ -54,6 +57,15 @@ function copyPublicFolder() {
     dereference: true
   });
 }
+
+function localCopySync(source, target) {
+  if (!fs.existsSync(source)) {
+    return;
+  }
+  fs.copySync(source, target, {
+    dereference: true
+  });
+}
 function copyServer() {
   copyFolderRecursiveSync(paths.server, paths.distBuild + `/${packageJson.name}`);
   copyFolderRecursiveSync(paths.packages, paths.distBuild + `/${packageJson.name}`);
@@ -65,24 +77,12 @@ function copyServer() {
     fs.mkdirSync(paths.distBuild + `/${packageJson.name}/src`);
   }
   fs.copyFileSync(paths.appSrc + '/config.js', paths.distBuild + `/${packageJson.name}/src/config.js`);
-  fs.copySync(paths.appPath + '/.ebextensions', paths.distBuild + `/${packageJson.name}/.ebextensions`, {
-    dereference: true
-  });
-  fs.copySync(paths.content, paths.distBuild + `/${packageJson.name}/content`, {
-    dereference: true
-  });
-  fs.copySync(paths.dam, paths.distBuild + `/${packageJson.name}/dam`, {
-    dereference: true
-  });
-  fs.copySync(paths.scripts, paths.distBuild + `/${packageJson.name}/scripts`, {
-    dereference: true
-  });
-  fs.copySync(paths.config, paths.distBuild + `/${packageJson.name}/config`, {
-    dereference: true
-  });
-  fs.copySync(paths.apps, paths.distBuild + `/${packageJson.name}/apps`, {
-    dereference: true
-  });
+  localCopySync(paths.appPath + '/.ebextensions', paths.distBuild + `/${packageJson.name}/.ebextensions`);
+  localCopySync(paths.content, paths.distBuild + `/${packageJson.name}/content`);
+  localCopySync(paths.dam, paths.distBuild + `/${packageJson.name}/dam`);
+  localCopySync(paths.scripts, paths.distBuild + `/${packageJson.name}/scripts`);
+  localCopySync(paths.config, paths.distBuild + `/${packageJson.name}/config`);
+  localCopySync(paths.apps, paths.distBuild + `/${packageJson.name}/apps`);
 }
 
 function zipBuild(filename) {
