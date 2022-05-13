@@ -1,141 +1,209 @@
 import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
-import { Switch, Route, withRouter, Redirect } from 'react-router-dom';
-import { root, utils, cordova } from 'sq-core/web';
+import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
+import { root, utils, reducers } from 'sq-core/web';
 
 import templates from '../../templates';
 import routes from '../../ui-routes';
 import ErrorBoundry from '../ErrorBoundry';
-
 import BaseContainer from '../BaseContainer';
-import './app.scss';
-
-const { Snackbar, Dialog, Progress } = root;
+import { setAppLoaded } from '../../redux/app';
+import './_app.scss';
 const {
-  redirect: { setCustomHandlers }
+  apiBridge,
+  appEvents,
+  browser,
+  // translate as translator,
+  redirect,
 } = utils;
-const { isApp } = cordova;
 
-@inject('userStore', 'commonStore', 'authStore')
-@withRouter
-@observer
+const {
+  closeNotification,
+  closePopup,
+  closePopupScreen,
+  showNotificationMessage,
+  stopLoading,
+} = reducers.common;
+// const { translate } = translator;
+const { Progress, Dialog } = root;
+const { redirectTo } = redirect;
+
 class SandboxApp extends BaseContainer {
   constructor() {
     super();
-    this.handlePopupRedirect = this.handlePopupRedirect.bind(this);
+    this.state = {
+      pathname: '',
+    };
+    apiBridge.events.subscribe(
+      'onUnRecognizedError',
+      this.onUnRecognizedError.bind(this)
+    );
+    apiBridge.events.subscribe('onErrorPopup', this.onErrorPopup.bind(this));
+    apiBridge.events.subscribe(
+      'onUnauthroized',
+      this.onUnauthroized.bind(this)
+    );
+    apiBridge.events.subscribe('onCustomError', this.onCustomError.bind(this));
+    appEvents.events.subscribe(
+      'beforeRedirect',
+      this.onBeforeRedirect.bind(this)
+    );
   }
 
-  async componentDidMount() {
-    this.unlisten = this.props.history.listen(() => {
-      this.props.commonStore.showScreen && this.props.commonStore.closeScreen();
-      this.props.commonStore.setAppLoaded();
-    });
-    this.props.commonStore.setAppLoaded();
-    setCustomHandlers({
-      popup: this.handlePopupRedirect
-    });
+  onUnauthroized() {
+    redirectTo('login');
   }
 
-  handlePopupRedirect(screen, params, options) {
-    this.props.commonStore.openScreen(screen, params.title, {}, params);
+  onBeforeRedirect(response) {
+    // this.notify(response.error.message, 'error');
+    // this.stopLoading();
+    this.props.raiseAction(closePopupScreen());
+  }
+
+  onUnRecognizedError(response) {
+    this.props.raiseAction(
+      showNotificationMessage({
+        message: response.error.message,
+        type: 'error',
+      })
+    );
+    this.props.raiseAction(stopLoading());
+  }
+
+  onCustomError(response) {
+    const { handleType } = response.error;
+    // switch (
+    //   handleType
+    //   // case 'SUBSCRIPTION_REQUIRED':
+    //   //   this.openScreen('/gopremium', translate('Premium'));
+    //   // break;
+    // ) {
+    // }
+  }
+
+  onErrorPopup(response) {
+    this.props.raiseAction(
+      showNotificationMessage({
+        message: response.error.message,
+        type: 'error',
+      })
+    );
+    this.props.raiseAction(stopLoading());
+  }
+
+  componentDidMount() {
+    // if (store.common.isProtectedUrl()) {
+    //   this.props.userStore
+    //     .pullUser()
+    //     .finally(() => store.common.setAppLoaded());
+    // } else {
+    //   store.common.setAppLoaded();
+    // }
+    this.props.appActions.setAppLoaded();
   }
 
   render() {
-    const { location, ...rest } = this.props;
+    const { ...rest } = this.props;
+    const { store } = this.props;
+    const { popupScreen } = store.common;
     const userData = {
-      loggedIn: !!this.props.userStore.currentUser
+      loggedIn: !!this.props.store.auth.currentUser,
     };
-    const { screenName } = this.props.commonStore;
-    const RouterComponent = routes[screenName] && routes[screenName].container;
-    const { ...Routerprops } = routes[screenName] || {};
-    if (this.props.commonStore.appLoaded) {
+    const RouterComponent =
+      routes[popupScreen.name] && routes[popupScreen.name].container;
+    const { ...Routerprops } = routes[popupScreen.name] || {};
+
+    if (store.app.appLoaded) {
       return (
         <React.Fragment>
-          {!RouterComponent && this.props.commonStore.isLoading && <Progress style="fixed" />}
-          <Snackbar
-            open={this.props.commonStore.showNotification}
-            anchorOrigin={{
-              vertical: isApp() ? 'bottom' : 'top'
-            }}
-            message={this.props.commonStore.notificationMessage}
-            onClose={() => this.props.commonStore.closeNotify()}
-            severity={this.props.commonStore.notificationType}
-          />
+          {!RouterComponent && store.common.isLoading && (
+            <Progress style="fixed" />
+          )}
           <Dialog
-            open={this.props.commonStore.showPopup}
-            classes={{
-              body: 'sq-dialog__content-body--auto'
-            }}
-            closeButton={false}
-            style="ios"
-            content={this.props.commonStore.popupMessage}
-            title={this.props.commonStore.popupTitle}
-            actions={this.props.commonStore.popupActions || [{ buttonText: 'Ok', actionType: 'close' }]}
-            onClose={() => this.props.commonStore.closePopup()}
-            onAction={() => this.props.commonStore.closePopup()}
-            severity={this.props.commonStore.popupType}
+            open={store.common.popup.show}
+            content={store.common.popup.message}
+            title={store.common.popup.title}
+            actions={
+              store.common.popup.actions || [
+                { buttonText: 'Ok', actionType: 'close' },
+              ]
+            }
+            onClose={() => this.props.appActions.closePopup()}
+            onAction={() => this.props.appActions.closePopup()}
+            severity={store.common.popup.type}
           />
-          {RouterComponent && (
+          {RouterComponent && store.common.popupScreen.show && (
             <Dialog
-              open={this.props.commonStore.showScreen}
-              style="ios"
-              isLoading={this.props.commonStore.isLoading}
-              fullScreen={this.props.commonStore.breakpointDown('sm')}
+              open={store.common.popupScreen.show}
+              isLoading={store.common.isLoading}
+              fullScreen={browser.breakpoints.down('sm')}
               content={
                 <ErrorBoundry>
                   <RouterComponent
-                    key={`dialog-${screenName}`}
+                    {...rest}
                     dataPacket={{
                       ...userData,
-                      hasDialog: true
+                      hasDialog: true,
                     }}
-                    {...this.props}
                     {...Routerprops}
-                    events={this.props.commonStore.screenEvents}
-                    {...this.props.commonStore.screenProps}
+                    {...store.common.popupScreen.props}
                   />
                 </ErrorBoundry>
               }
-              title={this.props.commonStore.screenTitle}
-              onClose={() => this.props.commonStore.closeScreen()}
-              onAction={() => this.props.commonStore.closeScreen()}
+              title={store.common.popupScreen.title}
+              onClose={() => this.props.appActions.closePopupScreen()}
+              onAction={() => this.props.appActions.closePopupScreen()}
             />
           )}
-          <div className="sq-app__root">
-            <div className="sq-app__main">
-              <Switch>
-                {Object.keys(routes).map((key, idx) => {
-                  return (
-                    <Route
-                      key={key}
-                      path={key}
-                      render={(props) => {
-                        let Compn;
-                        let Template = '';
-                        const { container, template, ...restProps } = routes[key] || {};
-                        if (typeof routes[key] === 'object' && routes[key].container) {
-                          Compn = routes[key].container;
-                        }
-                        if (routes[key].template && templates[routes[key].template]) {
-                          Template = templates[routes[key].template];
-                        } else {
-                          Template = templates['default'];
-                        }
-                        return (
-                          <Template {...rest} {...restProps} routeName={key}>
-                            <ErrorBoundry>
-                              <Compn dataPacket={{ ...userData }} key={`route-${idx}`} {...rest} {...props} {...restProps} routeName={key} />
-                            </ErrorBoundry>
-                          </Template>
-                        );
-                      }}
-                    />
-                  );
-                })}
-                <Redirect from="/" to={'/content/en/home'} />
-              </Switch>
-            </div>
+
+          <div className="sq-app__main">
+            <Switch>
+              {Object.keys(routes).map((key, idx) => {
+                return (
+                  <Route
+                    key={key}
+                    path={key}
+                    render={(props) => {
+                      let Compn;
+                      let Template = '';
+                      const { container, template, ...restProps } =
+                        routes[key] || {};
+                      if (
+                        typeof routes[key] === 'object' &&
+                        routes[key].container
+                      ) {
+                        Compn = routes[key].container;
+                      }
+                      if (
+                        routes[key].template &&
+                        templates[routes[key].template]
+                      ) {
+                        Template = templates[routes[key].template];
+                      } else {
+                        Template = templates['default'];
+                      }
+                      return (
+                        <Template {...props} {...rest} {...restProps} routeName={key}>
+                          <ErrorBoundry>
+                            <Compn
+                              dataPacket={{ ...userData }}
+                              key={`route-${idx}`}
+                              {...rest}
+                              {...props}
+                              {...restProps}
+                              routeName={key}
+                            />
+                          </ErrorBoundry>
+                        </Template>
+                      );
+                    }}
+                  />
+                );
+              })}
+              <Redirect from="/" to={'/content/en/home'} />
+            </Switch>
           </div>
         </React.Fragment>
       );
@@ -149,12 +217,43 @@ class SandboxApp extends BaseContainer {
   }
 }
 
-SandboxApp.propTypes = {
-  userStore: PropTypes.object,
-  commonStore: PropTypes.object,
-  authStore: PropTypes.object,
-  location: PropTypes.object,
-  history: PropTypes.object
+const mapStateToProps = (state) => {
+  return {
+    store: {
+      common: state.common,
+      content: state.content,
+      app: state.app,
+      auth: state.auth,
+    },
+  };
 };
 
-export default SandboxApp;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    appActions: {
+      setAppLoaded: () => dispatch(setAppLoaded()),
+      closeNotification: () => dispatch(closeNotification()),
+      closePopup: () => dispatch(closePopup()),
+      closePopupScreen: () => dispatch(closePopupScreen()),
+    },
+    raiseAction: dispatch,
+  };
+};
+
+SandboxApp.propTypes = {
+  raiseAction: PropTypes.func,
+  closeNotification: PropTypes.func,
+  store: PropTypes.object,
+  commonActions: PropTypes.object,
+  appActions: PropTypes.object,
+  location: PropTypes.object,
+  authStore: PropTypes.object,
+  history: PropTypes.object,
+};
+
+export { SandboxApp as CustomerPortal };
+
+export default compose(
+  withRouter,
+  connect(mapStateToProps, mapDispatchToProps)
+)(SandboxApp);

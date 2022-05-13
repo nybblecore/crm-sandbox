@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
 import { root } from 'sq-core/web';
 
 import './dashboard.scss';
 const { GlobalNavigation } = root;
 
-@inject('commonStore')
-@observer
 class Dashboard extends Component {
   constructor() {
     super();

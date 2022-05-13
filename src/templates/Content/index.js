@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
+
 import './content.scss';
-@inject('commonStore', 'userStore')
-@observer
+
 class Content extends Component {
 
   render() {

@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
 import { root } from 'sq-core/web';
 import { utils } from 'sq-core/web';
 
 import BaseContainer from '../../containers/BaseContainer';
 const { GlobalNavigation } = root;
 
-@inject('commonStore', 'userStore')
-@observer
 class Homepage extends BaseContainer {
   constructor() {
     super();
@@ -24,10 +21,10 @@ class Homepage extends BaseContainer {
   }
 
   render() {
-    const { children, pageData = {}, data = {}, userStore } = this.props;
+    const { children, pageData = {}, data = {}, store } = this.props;
     const { metaData = {}, siteMap = {} } = data;
     let props = {};
-    if (!userStore.currentUser) {
+    if (!store.auth.currentUser) {
       props = { ...siteMap.siteMap.globalNavigation };
     } else {
       props = { ...siteMap.siteMap.globalNavigationLoggedIn };
@@ -59,7 +56,7 @@ class Homepage extends BaseContainer {
 Homepage.propTypes = {
   children: PropTypes.node,
   pageData: PropTypes.object,
-  userStore: PropTypes.object,
+  store: PropTypes.object,
   data: PropTypes.object
 };
 

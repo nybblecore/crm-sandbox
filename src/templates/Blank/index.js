@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { inject, observer } from 'mobx-react';
 import { root } from 'sq-core/web';
 import { utils } from 'sq-core/web';
 
 import BaseContainer from '../../containers/BaseContainer';
 const { GlobalNavigation } = root;
 
-@inject('commonStore', 'userStore')
-@observer
 class Homepage extends BaseContainer {
   constructor() {
     super();
@@ -24,21 +21,7 @@ class Homepage extends BaseContainer {
   }
 
   render() {
-    const { children, pageData = {}, data = {}, userStore } = this.props;
-    const { metaData = {}, siteMap = {} } = data;
-    let props = {};
-    if (!userStore.currentUser) {
-      props = { ...siteMap.siteMap.globalNavigation };
-    } else {
-      props = { ...siteMap.siteMap.globalNavigationLoggedIn };
-    }
-
-    let finalLogo = siteMap.siteMap.logo;
-    if (siteMap.siteMap.brands) {
-      if (siteMap.siteMap.brands[this.state.qs.brand]) {
-        finalLogo = siteMap.siteMap.brands[this.state.qs.brand];
-      }
-    }
+    const { children, pageData = {} } = this.props;
 
     return (
       <div className={`sq-content-page sq-content-page--header-footer-body  ${pageData.className || ''}`}>

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router } from 'react-router-dom';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { Provider } from 'mobx-react';
+import { Provider } from 'react-redux';
 import { cordova, components, containers, utils } from 'sq-core/web';
 
 import containers_all from './containers';
@@ -11,7 +11,7 @@ import HealthApp from './containers/App';
 import './error-messages';
 
 import theme from './theme';
-import stores from './stores';
+import {store} from './redux';
 
 import config from './config';
 import analytics from './utils/analytics';
@@ -53,7 +53,7 @@ var app = {
       this.initApp();
     }
     ReactDOM.render(
-      <Provider {...stores}>
+      <Provider store={store}>
         <MuiThemeProvider theme={theme}>
           <Router history={history}>
             <HealthApp onAnalytics={analytics.doAnalytics} />

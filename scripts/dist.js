@@ -57,7 +57,6 @@ function copyPublicFolder() {
     dereference: true
   });
 }
-
 function localCopySync(source, target) {
   if (!fs.existsSync(source)) {
     return;
@@ -68,10 +67,8 @@ function localCopySync(source, target) {
 }
 function copyServer() {
   copyFolderRecursiveSync(paths.server, paths.distBuild + `/${packageJson.name}`);
-  copyFolderRecursiveSync(paths.packages, paths.distBuild + `/${packageJson.name}`);
   copyFolderRecursiveSync(paths.clientlibs, paths.distBuild + `/${packageJson.name}`);
-  fs.copyFileSync(paths.appPath + '/package-server.json', paths.distBuild + `/${packageJson.name}/package.json`);
-  fs.copyFileSync(paths.appPath + '/package-core.json', paths.distBuild + `/${packageJson.name}/swishqube-core/package.json`);
+  fs.copyFileSync(paths.appPath + '/package.json', paths.distBuild + `/${packageJson.name}/package.json`);
   // fs.copyFileSync(paths.appPath + '/sq-core-1.0.0.tgz', paths.distBuild + `/${packageJson.name}/sq-core-1.0.0.tgz`);
   if (!fs.existsSync(paths.distBuild + `/${packageJson.name}/src`)) {
     fs.mkdirSync(paths.distBuild + `/${packageJson.name}/src`);
