@@ -24,7 +24,21 @@ module.exports = {
   analytics: {
     gaTrackingId: 'G-DSF'
   },
-
+  smtpSettings: {
+    host: 'email-smtp.ca-central-1.amazonaws.com',
+    secure: true,
+    secureConnection: false, // TLS requires secureConnection to be false
+    tls: {
+      ciphers: 'SSLv3'
+    },
+    requireTLS: true,
+    port: 465,
+    debug: true,
+    auth: {
+      user: 'AKIAY2AJ745RZPYOW7ZB',
+      pass: 'BJtW1jKxtvwSVePkoPy/lggP6Ta5LohpnYoEF6Nz6g6J'
+    }
+  },
   server: {
     host: 'http://dev.crm-sandbox.com'
   },

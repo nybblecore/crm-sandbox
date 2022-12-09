@@ -7,11 +7,13 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="shortcut icon" href="/favicon-32x32.png" />
 
+ 
   <title><%= siteMap.title %></title>
   <% if (mode !== 'development') { %>
-  <link href="/static/css/vendor.<%= siteMap.appVersion %>.chunk.css" rel="stylesheet">
-  <link href="/static/css/main.<%= siteMap.appVersion %>.chunk.css" rel="stylesheet">
+  <link href="/static/css/main.<%= siteMap.appVersion %>.css" rel="stylesheet">
   <% } %>
+ 
+  <script src="/env/app-config"></script>
  
 </head>
 
@@ -19,25 +21,15 @@
   <div id="root" class="content">
   </div>
 
-  <script type="text/javascript">
-    window.APP_CONFIG = {
-      appVersion: '<%= siteMap.appVersion %>',
-      gaTrackingId: '<%= analytics.gaTrackingId %>'
-    };
-  </script>
   
   <% if (mode !== 'development') { %>
-  <script src="/static/js/vendor.<%= siteMap.appVersion %>.chunk.js"></script>
-  <script src="/static/js/main.<%= siteMap.appVersion %>.chunk.js"></script>
-  <script src="/static/js/runtime~main.<%= siteMap.appVersion %>.js"></script>
-  <% } else { %>
-  <script src="/static/js/bundle.js"></script>
-  <script src="/static/js/vendor.chunk.js"></script>
-  <script src="/static/js/main.chunk.js"></script>
-  <script>
-    window.APP_CONFIG.MODE = 'development';
-  </script>
-  <% }%>
+    <script src="/static/js/main.<%= siteMap.appVersion %>.js"></script>
+    <% } else { %>
+    <script src="/static/js/main.js"></script>
+    <script>
+      window.APP_CONFIG.MODE = 'development';
+    </script>
+    <% }%>
 
 </body>
 

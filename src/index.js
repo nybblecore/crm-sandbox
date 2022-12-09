@@ -1,39 +1,48 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Router } from 'react-router-dom';
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { Provider } from 'react-redux';
-import { cordova, components, containers, utils } from 'sq-core/web';
-
+import { cordova, components, containers, ui, utils, root } from 'sq-core/web';
+import './styles/main.scss';
 import containers_all from './containers';
 import i18n from './i18n';
-import HealthApp from './containers/App';
+import CustomPortalApp from './containers/App';
+import appComponents from './components';
 import './error-messages';
 
 import theme from './theme';
-import {store} from './redux';
+import { store } from './redux';
 
 import config from './config';
 import analytics from './utils/analytics';
 import allHistory from './history';
+
 import './utils/custom-formatters';
 import './icons';
-import './styles/main.scss';
+
 
 const { isApp } = cordova;
 const { addComp } = components;
+const { addComp: addUiComp } = ui;
 const { DynamicContent } = containers;
 const {
   translate: { loadLanguages },
-  redirect: { setUrlMapping, setHistory }
+  redirect: { setUrlMapping, setHistory },
+  addParsers,
 } = utils;
 
 const history = isApp() ? allHistory.hash() : allHistory.browser();
-
+addComp({
+  ...appComponents,
+});
+addUiComp({
+  ...appComponents,
+});
 loadLanguages(i18n);
 
 DynamicContent.registerContainers({
-  ...containers_all
+  ...containers_all,
 });
 
 setHistory(history);
@@ -46,23 +55,23 @@ var app = {
   bindEvents: function () {
     document.addEventListener('deviceready', this.onDeviceReady, false);
   },
-  initApp: function () {
-  },
+  initApp: function () {},
   onDeviceReady: function (direct) {
     if (!direct) {
       this.initApp();
     }
-    ReactDOM.render(
+    const container = document.getElementById('root');
+    const root = createRoot(container);
+    root.render(
       <Provider store={store}>
-        <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
           <Router history={history}>
-            <HealthApp onAnalytics={analytics.doAnalytics} />
+            <CustomPortalApp onAnalytics={analytics.doAnalytics} />
           </Router>
-        </MuiThemeProvider>
-      </Provider>,
-      document.getElementById('root')
+        </ThemeProvider>
+      </Provider>
     );
-  }
+  },
 };
 if (isApp()) {
   app.initialize();
@@ -75,5 +84,7 @@ const setFullHeight = () => {
 window.addEventListener('resize', () => {
   setFullHeight();
 });
-
+// addParsers({
+//   ...parsers,
+// });
 setFullHeight();
