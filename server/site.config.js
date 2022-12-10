@@ -7,8 +7,8 @@ module.exports = {
   launchConfig: {
     '/content/en/sales-*': {
       start: '2022-03-20T03:30:00.000Z',
-      end: '2022-03-21T03:30:00.000Z'
-    }
+      end: '2022-03-21T03:30:00.000Z',
+    },
   },
   siteMap: {
     maxNavigationLevel: 2,
@@ -19,26 +19,26 @@ module.exports = {
       500: '/content/pages/error',
       404: '/content/pages/404',
       launchSoon: '/content/pages/wait',
-      launchEnded: '/content/pages/ended'
+      launchEnded: '/content/pages/ended',
     },
     globalNavigation: {
       className: 'sq-global-navigation--bordered sq-global-navigation--blured',
       classes: {
-        wrapper: 'container'
+        wrapper: 'container',
       },
       mobileItems: [],
-      rightItems: []
+      rightItems: [],
     },
     globalNavigationLoggedIn: {
       mobileItems: [],
-      rightItems: []
+      rightItems: [],
     },
     globalFooter: {
       classes: {
-        item: 'col-xs-12 col-sm-6'
+        item: 'col-xs-12 col-sm-6',
       },
       className: 'sq-footer--light',
-      copyrights: '© Nybble Core Pvt. Ltd., All Rights Reserved'
+      copyrights: '© Nybble Core Pvt. Ltd., All Rights Reserved',
     },
     logo: {
       text: '',
@@ -47,9 +47,36 @@ module.exports = {
       size: 'dan-wide',
       className: '',
       variant: 'primary',
-      href: 'home'
+      href: 'home',
     },
 
-    children: []
-  }
+    children: [
+      {
+        title: 'Link 1',
+        href: '/content/en/portal/knowledge-base',
+        children: [
+          {
+            title: 'Sub Menu',
+            href: '/content/en/portal/knowledge-base',
+          },
+          {
+            title: 'Sub Menu',
+            href: '/content/en/portal/documents',
+          },
+          {
+            title: 'Sub Menu',
+            href: '/content/en/portal/tickets',
+          },
+        ],
+      },
+      {
+        title: 'Navigation 2',
+        href: '/content/en/portal/documents',
+      },
+      {
+        title: 'Nav 3',
+        href: '/content/en/portal/tickets',
+      },
+    ],
+  },
 };

@@ -100,7 +100,7 @@ export default createTheme({
   spacing: (factor) => [0, 4, 8, 16, 32, 64][factor],
   shadows: Array(25).fill('none'),
   typography: {
-    fontFamily: 'MarkOT',
+    fontFamily: 'Inter-Light',
     fontSize: 12,
     useNextVariants: true,
   },

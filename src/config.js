@@ -3,7 +3,10 @@ module.exports = {
     protected: ['/dashboard']
   },
   urlMapping: {
-    request: '/content/en/request',
-    home: '/content/en/home'
+    home: '/content/en/home',
+    '/content/(.*)': {
+      type: 'regex',
+      target: '/content/$1'
+    }
   }
 };
